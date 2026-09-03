@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   View,
@@ -9,12 +9,49 @@ import {
   FlatList,
 } from 'react-native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import TaskCard from '../components/TaskCard';
+
+const TASKS_STORAGE_KEY = '@week1labs_tasks';
 
 export default function AddTaskScreen() {
   const [taskText, setTaskText] = useState('');
   const [tasks, setTasks] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
+    saveTasks();
+  }, [tasks]);
+
+  async function loadTasks() {
+    try {
+      const storedTasks = await AsyncStorage.getItem(
+        TASKS_STORAGE_KEY
+      );
+
+      if (storedTasks !== null) {
+        setTasks(JSON.parse(storedTasks));
+      }
+    } catch (error) {
+      console.log('Failed to load tasks:', error);
+    }
+  }
+
+  async function saveTasks() {
+    try {
+      await AsyncStorage.setItem(
+        TASKS_STORAGE_KEY,
+        JSON.stringify(tasks)
+      );
+    } catch (error) {
+      console.log('Failed to save tasks:', error);
+    }
+  }
 
   function handleAddTask() {
     if (taskText.trim() === '') {
