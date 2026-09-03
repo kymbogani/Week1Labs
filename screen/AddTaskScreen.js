@@ -25,15 +25,22 @@ export default function AddTaskScreen() {
     "Loading today's motivation..."
   );
 
+  // Prevent saving before the stored tasks finish loading
+  const [isLoaded, setIsLoaded] = useState(false);
+
   // Load tasks from AsyncStorage
   useEffect(() => {
     loadTasks();
   }, []);
 
-  // Save tasks to AsyncStorage
+  // Save tasks only after the initial load is complete
   useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
     saveTasks();
-  }, [tasks]);
+  }, [tasks, isLoaded]);
 
   // Lab 9: Fetch a quote when the screen loads
   useEffect(() => {
@@ -56,6 +63,8 @@ export default function AddTaskScreen() {
       }
     } catch (error) {
       console.log('Failed to load tasks:', error);
+    } finally {
+      setIsLoaded(true);
     }
   }
 
@@ -78,7 +87,7 @@ export default function AddTaskScreen() {
 
     const newTask = {
       id: Date.now().toString(),
-      title: taskText,
+      title: taskText.trim(),
       done: false,
     };
 
@@ -97,6 +106,25 @@ export default function AddTaskScreen() {
     );
   }
 
+  // Lab 10: Delete task
+  function handleDeleteTask(id) {
+    setTasks(
+      tasks.filter((t) => t.id !== id)
+    );
+  }
+
+  // Lab 9: Get a new quote
+  function handleNewQuote() {
+    setQuote('Loading a new quote...');
+
+    fetch('https://api.quotable.io/random')
+      .then((response) => response.json())
+      .then((data) => setQuote(data.content))
+      .catch(() =>
+        setQuote('Believe in yourself and get it done!')
+      );
+  }
+
   return (
     <View style={styles.container}>
       {/* Lab 9: Display quote */}
@@ -107,16 +135,7 @@ export default function AddTaskScreen() {
       {/* Lab 9: New Quote button */}
       <Button
         title="New Quote"
-        onPress={() => {
-          fetch('https://api.quotable.io/random')
-            .then((response) => response.json())
-            .then((data) => setQuote(data.content))
-            .catch(() =>
-              setQuote(
-                'Believe in yourself and get it done!'
-              )
-            );
-        }}
+        onPress={handleNewQuote}
       />
 
       <Text style={styles.heading}>Add a Task</Text>
@@ -143,6 +162,7 @@ export default function AddTaskScreen() {
         You have {tasks.length} task(s)
       </Text>
 
+      {/* Lab 7: Celebration */}
       {tasks.length > 0 &&
         tasks.every((t) => t.done) && (
           <Text style={styles.celebration}>
@@ -158,6 +178,7 @@ export default function AddTaskScreen() {
             title={item.title}
             done={item.done}
             onToggle={() => handleToggleTask(item.id)}
+            onDelete={() => handleDeleteTask(item.id)}
           />
         )}
         ListEmptyComponent={

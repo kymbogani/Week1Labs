@@ -6,9 +6,17 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1B2A4A"
+    },
+
     "ios": {
       "supportsTablet": true
     },
+
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -17,6 +25,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
     },
+
     "web": {
       "favicon": "./assets/favicon.png"
     }
