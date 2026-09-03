@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import {
   View,
   Text,
@@ -27,6 +28,16 @@ export default function AddTaskScreen() {
     setTaskText('');
   }
 
+  function handleToggleTask(id) {
+    setTasks(
+      tasks.map((t) =>
+        t.id === id
+          ? { ...t, done: !t.done }
+          : t
+      )
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Add a Task</Text>
@@ -43,6 +54,10 @@ export default function AddTaskScreen() {
         onPress={handleAddTask}
       />
 
+      <Text style={styles.counter}>
+        You have {tasks.length} task(s)
+      </Text>
+
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
@@ -50,7 +65,16 @@ export default function AddTaskScreen() {
           <TaskCard
             title={item.title}
             done={item.done}
+            onToggle={() => handleToggleTask(item.id)}
           />
+        )}
+        ListEmptyComponent={
+          <Text style={styles.empty}>
+            No tasks yet — add one above! 👆
+          </Text>
+        }
+        ItemSeparatorComponent={() => (
+          <View style={styles.separator} />
         )}
         style={styles.list}
       />
@@ -80,7 +104,23 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
+  counter: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#4B5563',
+  },
+
   list: {
     marginTop: 16,
+  },
+
+  empty: {
+    textAlign: 'center',
+    color: '#6B7280',
+    marginTop: 24,
+  },
+
+  separator: {
+    height: 8,
   },
 });
